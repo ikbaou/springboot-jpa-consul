@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @EnableDiscoveryClient
 @SpringBootApplication
-public class RestServiceOne {
-
+public class Application {
+	
 	public static void main(String[] args) {
-		SpringApplication.run(RestServiceOne.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 }
