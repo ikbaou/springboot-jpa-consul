@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.config;
 
 import javax.inject.Inject;
 
@@ -14,7 +14,7 @@ import com.example.demo.service.CustomerService;
 import com.example.demo.service.CustomerServiceImpl;
 
 @Configuration
-public class ServiceConfig{
+public class BeanConfig{
 	
 	@Inject
 	ModelMapper modelMapper;		

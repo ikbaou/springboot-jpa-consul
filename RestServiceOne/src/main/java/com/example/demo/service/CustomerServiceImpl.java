@@ -31,6 +31,7 @@ public class CustomerServiceImpl implements CustomerService {
 	public Customer getCustomer(Long id) {
 		CustomerEntity customerE = customerRepo.findOne(id);
 		Customer customerDto = customerE == null ? null : modelMapper.map(customerE, Customer.class);
+		LOG.debug("accountDto: {}", customerDto);
 		return customerDto;
 	}
 

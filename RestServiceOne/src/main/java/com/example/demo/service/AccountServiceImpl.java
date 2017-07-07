@@ -31,6 +31,7 @@ public class AccountServiceImpl implements AccountService {
 	public Account getAccount(Long id) {
 			AccountEntity accountE = accountRepo.findOne(id);
 			Account accountDto = accountE == null ? null : modelMapper.map(accountE, Account.class);
+			LOG.debug("accountDto: {}", accountDto);
 		return accountDto;
 	}
 
