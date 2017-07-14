@@ -83,7 +83,6 @@ public class AccountRest {
 	}
 	
 	@POST
-	@Path("/")
 	@ApiOperation(value = "Resource to create an Account")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Account created", response = Account.class),
@@ -100,7 +99,6 @@ public class AccountRest {
 	}
 	
 	@PUT
-	@Path("/")
 	@ApiOperation(value = "Resource to update an Account")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Account modified", response = Account.class),

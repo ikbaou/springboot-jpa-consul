@@ -1,6 +1,5 @@
 package com.example.demo.config;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -19,9 +18,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Component
 @PropertySource("classpath:swagger.properties")
 @Configuration
-@EnableAutoConfiguration
 @EnableSwagger2
-public class SwaggerConfig {                                    
+public class SwagConfig {                                    
     @Bean
     public Docket api() {             
         return new Docket(DocumentationType.SWAGGER_2);                                       
