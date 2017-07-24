@@ -25,7 +25,7 @@ public class Receiver {
 	}
 	
 	/**
-	 * receive messages from persistent, durable topic ${jms.topic.test}
+	 * receive messages from virtual topic ${jms.virtual.topic.test} as queue ${jms.virtual.topic.queue.test}
 	 * 
 	 * @param eventMessage
 	 */
