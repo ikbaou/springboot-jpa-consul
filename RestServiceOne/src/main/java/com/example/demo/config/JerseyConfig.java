@@ -7,9 +7,6 @@ import org.glassfish.jersey.server.wadl.internal.WadlResource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import com.example.demo.rest.AccountEndpoint;
-import com.example.demo.rest.HealthEndpoint;
-
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
@@ -17,11 +14,12 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 @Configuration
 public class JerseyConfig extends ResourceConfig {
 	
-    @Value("${spring.jersey.application-path:/}")
+    @Value("${spring.jersey.application-path:/api}")
     private String apiPath;	
 
     public JerseyConfig() {
-        registerEndpoints();       
+    	register(WadlResource.class); //generates WADL service descriptor
+        packages("com.example.demo.rest");        
     }
     
     @PostConstruct
@@ -29,12 +27,6 @@ public class JerseyConfig extends ResourceConfig {
     	 configureSwagger();
     }
 
-	private void registerEndpoints() {
-        register(WadlResource.class);
-        register(HealthEndpoint.class);
-        register(AccountEndpoint.class);
-    }
-	
     private void configureSwagger() {
         // Available at localhost:port/swagger.json
         this.register(ApiListingResource.class);

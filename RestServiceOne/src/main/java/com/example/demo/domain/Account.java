@@ -2,10 +2,14 @@ package com.example.demo.domain;
 
 import java.util.Date;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.example.demo.domain.validation.groups.ModifyAccountGroup;
 import com.example.demo.domain.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -13,15 +17,18 @@ import com.fasterxml.jackson.annotation.JsonView;
 @XmlRootElement(name = "account")
 public class Account {
 	
+	@NotNull(groups={ModifyAccountGroup.class})	
 	@JsonView(Views.Sensitive.class)
 	protected Long id;
 	
+	@Valid
 	@JsonView(Views.Internal.class)
 	protected Customer customer;
 		
 	@JsonView(Views.Public.class)
 	protected Date expiryDate;
-
+	
+	@NotNull(groups={ModifyAccountGroup.class})
 	public Long getId() {
 		return id;
 	}
