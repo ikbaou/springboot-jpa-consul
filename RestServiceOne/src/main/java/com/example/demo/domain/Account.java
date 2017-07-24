@@ -2,11 +2,25 @@ package com.example.demo.domain;
 
 import java.util.Date;
 
-public class Account {
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-	private Long id;
-	private Customer customer;
-	private Date expiryDate;
+import com.example.demo.domain.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "account")
+public class Account {
+	
+	@JsonView(Views.Sensitive.class)
+	protected Long id;
+	
+	@JsonView(Views.Internal.class)
+	protected Customer customer;
+		
+	@JsonView(Views.Public.class)
+	protected Date expiryDate;
 
 	public Long getId() {
 		return id;

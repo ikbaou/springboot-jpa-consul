@@ -12,8 +12,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.example.demo.domain.Account;
-import com.example.demo.domain.Customer;
+import com.example.demo.domain.PublicAccount;
+import com.example.demo.domain.views.Views;
 import com.example.demo.service.AccountService;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,46 +32,111 @@ public class AccountEndpoint {
 	@Inject
 	AccountService accountService;
 	
-    @GET
-    @Path("/{id}")
-    @Produces({ MediaType.APPLICATION_JSON })
-    @ApiOperation(value = "Resource to get an Account", nickname="getAccount")    
-	@ApiResponses(value = { 
-			@ApiResponse(code = 200, message = "Account found", response = Account.class),
-			@ApiResponse(code = 404, message = "Account not found") })    
-	public Account getAccount(
-			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
-			@Context final HttpServletResponse response) {
-    	
+	/**
+	 * Search for an account by ID and set the response accordingly
+	 * 
+	 * @param id
+	 * @param response
+	 * @return
+	 */
+	protected Account getAccount(Long id, final HttpServletResponse response) {
     	Account account = accountService.getAccount(id);
         if(account == null) {
         	Response.status(Response.Status.NOT_FOUND);
         }else{
         	Response.status(Response.Status.OK);
         }
-    	return account;
-    }	
+    	return account;		
+	}
 	
+    /**
+     * Get a Public Account based on ID
+     * 
+     * @param id
+     * @param response
+     * @return
+     */
     @GET
-    @Path("/{id}/customer")
+    @Path("/{id}")
     @Produces({ MediaType.APPLICATION_JSON })
-    @ApiOperation(value = "Resource to get a Customer for an Account")    
+    @ApiOperation(value = "Resource to get an Account Public view", nickname="getAccount")    
 	@ApiResponses(value = { 
-			@ApiResponse(code = 200, message = "Customer found", response=Customer.class),
-			@ApiResponse(code = 404, message = "Customer not found") })	    
-	public Customer getCustomer(
+			@ApiResponse(code = 200, message = "Account found", response = PublicAccount.class),
+			@ApiResponse(code = 404, message = "Account not found") })    
+	public PublicAccount getAccountPublic(
 			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
 			@Context final HttpServletResponse response) {
-    	Account account = accountService.getAccount(id);
-    	Customer customer =  null;
-        if(account == null || account.getCustomer()==null) {
-        	Response.status(Response.Status.NOT_FOUND);
-        }else{
-        	Response.status(Response.Status.OK);
-        	customer = account.getCustomer();
-        }
-    	return customer;
+    	
+    	final Account account = this.getAccount(id,response);
+    	return account!=null ? new PublicAccount(account) : null;
     }
+    
+    /**
+     * Get a full Account based on ID     
+     * 
+     * @param id
+     * @param response
+     * @return
+     */
+    @GET
+    @Path("/{id}/sensitive")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @ApiOperation(value = "Resource to get an Account with Sensitive", nickname="getAccountSensitive")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "Account found", response = Account.class),
+			@ApiResponse(code = 404, message = "Account not found") })    
+	public Account getAccountSensitive(
+			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
+			@Context final HttpServletResponse response) {
+
+    	return this.getAccount(id,response);
+    }    
+            
+    /**
+     * Using Jackson views to get an Account in public view
+     * 
+     * @param id
+     * @param response
+     * @return
+     */
+    @GET
+    @JsonView(Views.Public.class)
+    @Path("/{id}/jackson")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @ApiOperation(value = "Resource to get an Account rendered with view: Views.Public", nickname="getAccountJacksonPublic")    
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "Account found", response = Account.class),
+			@ApiResponse(code = 404, message = "Account not found") })        
+	public Account getAccountJacksonPublic(
+			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
+			@Context final HttpServletResponse response) {
+
+    	return this.getAccount(id,response);
+    }    
+    
+    /**
+     * Using Jackson views to get an Account in sensitive view
+     * 
+     * @param id
+     * @param response
+     * @return
+     */
+    @GET
+    @JsonView(Views.Sensitive.class)
+    @Path("/{id}/jackson/public")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @ApiOperation(value = "Resource to get an Account rendered with view: Views.Sensitive", nickname="getAccountJacksonSensitive")
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "Public Account found", response = Account.class),
+			@ApiResponse(code = 404, message = "Public Account not found") })      
+	public Account getAccountJacksonSensitive(
+			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
+			@Context final HttpServletResponse response) {
+
+    	return this.getAccount(id,response);
+    }    
+	
+
  
 
 }
