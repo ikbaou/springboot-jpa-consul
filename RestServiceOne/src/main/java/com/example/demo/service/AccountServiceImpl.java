@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.domain.Account;
 import com.example.demo.domain.Customer;
 import com.example.demo.entity.AccountEntity;
+import com.example.demo.entity.mapper.AccountMapper;
 import com.example.demo.repository.AccountRepository;
 
 @Service
@@ -26,11 +27,16 @@ public class AccountServiceImpl implements AccountService {
 	protected ModelMapper modelMapper;
 	
 	@Inject
+	protected AccountMapper accountMapper;
+	
+	@Inject
 	public AccountServiceImpl(
+			AccountMapper accountMapper,
 			ModelMapper modelMapper, 
 			AccountRepository accountRepo,
 			CustomerService customerService){
 		super();
+		this.accountMapper = accountMapper;
 		this.modelMapper = modelMapper;
 		this.accountRepo = accountRepo;
 		this.customerService = customerService;

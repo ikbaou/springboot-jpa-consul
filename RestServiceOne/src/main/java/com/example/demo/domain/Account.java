@@ -11,12 +11,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.example.demo.domain.validation.groups.ModifyAccountGroup;
 import com.example.demo.domain.views.Views;
+import com.example.demo.util.AbstractDomain;
 import com.fasterxml.jackson.annotation.JsonView;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "account")
-public class Account {
+public class Account extends AbstractDomain {
 	
+	private static final long serialVersionUID = 1L;
+
 	@NotNull(groups={ModifyAccountGroup.class})	
 	@JsonView(Views.Sensitive.class)
 	protected Long id;

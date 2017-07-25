@@ -10,8 +10,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.example.demo.util.AbstractEntity;
+
 @Entity(name="ACCOUNT")
-public class AccountEntity {
+public class AccountEntity extends AbstractEntity {
+	
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

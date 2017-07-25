@@ -1,0 +1,341 @@
+package com.example.demo.util;
+
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.inject.Default;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import com.ed.ecomm.core.History;
+import com.ed.ecomm.core.Historyable;
+import com.ed.ecomm.core.domain.AbstractDomain;
+import com.ed.ecomm.core.entity.AbstractEntity;
+import com.ed.ecomm.core.logging.EDLogger;
+import com.ed.ecomm.core.mapping.AbstractMapper;
+import com.ed.ecomm.core.mapping.util.MapperUtil;
+
+@Default
+public abstract class AbstractJpaDao<D extends AbstractDomain, E extends AbstractEntity> {
+
+	@Inject private transient EDLogger LOG;
+
+	
+	/**
+	 * do not inject there are numerous qualified classes (all that extend it actually ... )
+	 */
+	protected AbstractMapper<D, E> domainMapper;
+
+	
+	//protected MapperUtil mapperUtil;
+
+	@PersistenceContext
+	protected EntityManager em;
+
+	/**
+	 * default constructor
+	 */
+	@Inject
+	@SuppressWarnings("unchecked")
+	public AbstractJpaDao(MapperUtil mapperUtil) {
+		this.mapperUtil = mapperUtil;
+		this.domainMapper = (AbstractMapper<D, E>) mapperUtil.getMapper(
+				(Class<D>)((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+	}
+	
+	protected void flush(boolean doIt){
+		if(doIt){
+			this.em.flush();
+		}		
+	}
+
+	/**
+	 * This method to persist an entity into DB {@inheritDoc}
+	 *
+	 * @param t
+	 *            {@inheritDoc}
+	 */
+	public D create(D domain, boolean flush) {
+
+		E entity = (E) this.em.merge(domainMapper.toEntity(domain));
+		this.em.persist(entity);
+		domain = domainMapper.toDomain(entity);
+
+		// historyable objects
+		persistHistory(domain);
+
+		flush(flush);
+		return domain;
+	}
+
+	/**
+	 * This method to update a record
+	 *
+	 * @param t
+	 * @return
+	 */
+	public D update(D domain, boolean flush) {
+
+		E entity = (E) this.em.merge(domainMapper.toEntity(domain));
+		this.em.merge(entity);
+		domain = domainMapper.toDomain(entity);
+
+		// historyable objects
+		persistHistory(domain);
+		flush(flush);
+		return domain;
+	}
+
+	/**
+	 * This method to HARD delete a record from a table by ID {@inheritDoc}
+	 *
+	 * @param type
+	 *            {@inheritDoc}
+	 * @param id
+	 *            {@inheritDoc}
+	 */
+	public void delete(Serializable id, boolean flush) {
+		Object ref = (Object) this.em.getReference(domainMapper.getEntityType(), id);
+		flush(flush);
+		this.em.remove(ref);
+	}
+
+	/**
+	 * This method to find a record from a table by passing the ID {@inheritDoc}
+	 *
+	 * @param type
+	 *            {@inheritDoc}
+	 * @param id
+	 *            {@inheritDoc}
+	 * @return {@inheritDoc}
+	 */
+	public D find(Serializable id) {
+		E entity = this.em.find(domainMapper.getEntityType(), id);
+		return domainMapper.toDomain(entity);
+	}
+
+	/**
+	 * This method to find a record from a table with a field check
+	 * {@inheritDoc}
+	 *
+	 * @param type
+	 *            {@inheritDoc}
+	 * @param id
+	 *            {@inheritDoc}
+	 * @return {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public D findByField(Class<D> t, String field, String value, Class<?> type) {
+		D result = null;
+		String sQuery = null;
+		try {
+			String fieldStr = field;
+			if (String.class.equals(type)) {
+				fieldStr = "lower(o." + field + ")";
+			}
+			sQuery = "select o from " + t.getSimpleName() + " o where " + fieldStr + " = :fieldValue";
+			Query hsql = this.em.createQuery(sQuery);
+			if (Long.class.equals(type)) {
+				hsql.setParameter("fieldValue", Long.valueOf(value));
+			} else if (Integer.class.equals(type)) {
+				hsql.setParameter("fieldValue", Integer.valueOf(value));
+			} else {
+				hsql.setParameter("fieldValue", value != null ? value.trim().toLowerCase() : null);
+			}
+			List<D> list = (List<D>) hsql.getResultList();
+			result = (list != null && !list.isEmpty()) ? list.get(0) : null;
+		} catch (NoResultException nre) {
+			LOG.trace("no results found for class: {}, field: {}, value: {}, ,type:{}, query: {}", t, field, value,
+					type, sQuery);
+		}
+		return result;
+	}
+
+	/**
+	 * This method to find a record from a table passing a list of fields that
+	 * compose a unique id
+	 * 
+	 * @param t
+	 *            The object to be queried
+	 * @param fieldValuePairList
+	 *            The mapping with field names and values
+	 * @param fieldTypePairsList
+	 *            The mapping with the field names and types
+	 * @return The record that matches the criteria
+	 */
+
+	@SuppressWarnings("unchecked")
+	public D findByUniqueKey(Class<D> t, Map<String, String> fieldValuePairList,
+			Map<String, Class<?>> fieldTypePairsList) {
+		D result = null;
+
+		String sQuery = "select o from " + t.getSimpleName() + " o where ";
+		Iterator<Map.Entry<String, String>> fields = fieldValuePairList.entrySet().iterator();
+
+		while (fields.hasNext()) {
+			Map.Entry<String, String> fieldValuePair = fields.next();
+			sQuery += fieldValuePair.getKey() + " = :" + fieldValuePair.getKey();
+			sQuery += " and ";
+		}
+		sQuery = sQuery.substring(0, sQuery.lastIndexOf(" and "));
+		Query hsql = this.em.createQuery(sQuery);
+		for (Map.Entry<String, Class<?>> typePair : fieldTypePairsList.entrySet()) {
+			String val = fieldValuePairList.get(typePair.getKey());
+
+			if (Long.class.equals(typePair.getValue())) {
+				hsql.setParameter(typePair.getKey(), Long.valueOf(val));
+				continue;
+			}
+			if (Integer.class.equals(typePair.getValue())) {
+				hsql.setParameter(typePair.getKey(), Integer.valueOf(val));
+				continue;
+			}
+
+			hsql.setParameter(typePair.getKey(), val != null ? val.trim().toLowerCase() : null);
+		}
+
+		List<D> list = (List<D>) hsql.getResultList();
+		result = (list != null && !list.isEmpty()) ? list.get(0) : null;
+
+		return result;
+	}
+
+	/**
+	 * This method to find all records from table {@inheritDoc}
+	 *
+	 * @param t
+	 *            {@inheritDoc}
+	 * @return {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public List<D> findAll(Class<D> t) {
+		String queryStr = "select o from " + t.getSimpleName() + " o";
+		List<D> resultList = this.em.createQuery(queryStr).getResultList();
+		return resultList;
+	}
+
+	/**
+	 * This method to find all records from a table with a field check
+	 * {@inheritDoc}
+	 *
+	 * @param type
+	 *            {@inheritDoc}
+	 * @param id
+	 *            {@inheritDoc}
+	 * @return {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public List<D> findAllByField(Class<D> t, String field, String value, Class<?> fieldClass) {
+		List<D> resultList = new ArrayList<D>();
+		String sQuery = "select o from " + t.getSimpleName() + " o where ";
+		try {
+
+			if (fieldClass.equals(String.class)) {
+				sQuery += " lower(o." + field + ") ";
+			} else {
+				sQuery += " o." + field;
+			}
+			sQuery += "= :fieldValue ";
+			Query hsql = this.em.createQuery(sQuery);
+			if (fieldClass.equals(String.class)) {
+				hsql.setParameter("fieldValue", value != null ? value.trim().toLowerCase() : null);
+			} else {
+				Object otherValue = constructObjectFromString(fieldClass, value);
+				hsql.setParameter("fieldValue", otherValue);
+			}
+			resultList = (List<D>) hsql.getResultList();
+		} catch (NoResultException nre) {
+			LOG.trace("no results found for class: {}, field: {}, value: {}, ,fieldClass:{}, query: {}", t, field,
+					value, fieldClass, sQuery);
+		}
+		return resultList;
+	}
+
+	protected Object constructObjectFromString(Class<?> fieldClass, String value) {
+		Object result = null;
+		try {
+			result = fieldClass.getDeclaredMethod("valueOf", new Class[] { String.class }).invoke(null, value);
+		} catch (Exception ex) {
+			LOG.error("error.converting.string", ex);
+		}
+		return result;
+	}
+
+	/**
+	 * This method to find all records from a table with a field check
+	 * {@inheritDoc}
+	 *
+	 * @param type
+	 *            {@inheritDoc}
+	 * @param id
+	 *            {@inheritDoc}
+	 * @return {@inheritDoc}
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<D> findAllByField(Class<D> t, String field, List value, String operation) {
+		List<D> resultList = new ArrayList<D>();
+		String sQuery = "select o from " + t.getSimpleName();
+		try {
+
+			sQuery += " o where o." + field + " " + operation + " (:fieldValue)";
+			Query hsql = this.em.createQuery(sQuery);
+			hsql.setParameter("fieldValue", value);
+			resultList = (List<D>) hsql.getResultList();
+		} catch (NoResultException nre) {
+			LOG.trace("no results found for class: {}, field: {}, value: {}, ,operation:{}, query: {}", t, field, value,
+					operation, sQuery);
+		}
+		return resultList;
+	}
+
+	/**
+	 * This method to find a record from a table with a field like check
+	 * {@inheritDoc}
+	 *
+	 * @param t
+	 *            {@inheritDoc}
+	 * @param id
+	 *            {@inheritDoc}
+	 * @return {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public List<D> findByLikeField(Class<D> t, String field, String value) {
+		List<D> resultList = new ArrayList<D>();
+		String sQuery = "select o from " + t.getSimpleName() + " o ";
+		try {
+
+			sQuery += " where lower(o." + field + ") like :fieldValue";
+			Query hsql = this.em.createQuery(sQuery);
+			hsql.setParameter("fieldValue", value != null ? value.trim().toLowerCase() : null);
+			resultList = (List<D>) hsql.getResultList();
+		} catch (NoResultException nre) {
+			LOG.trace("no results found for class: {}, field: {}, value: {}, query: {}", t, field, value, sQuery);
+		}
+		return resultList;
+	}
+
+	/**
+	 * If the object is instance of Historyable, use the domain converter and
+	 * persist a new snapsot of the history
+	 * 
+	 * @param domain
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected void persistHistory(D domain) {
+		// persist history
+		if (domain instanceof Historyable) {
+			History domainHistory = (History) ((Historyable) domain).createHistory();
+			if (domainHistory != null) {
+				AbstractMapper dhMapper = mapperUtil.getMapper(domainHistory.getClass());
+				this.em.persist(dhMapper.toEntity((AbstractDomain)domainHistory));
+			}
+		}
+	}
+}
