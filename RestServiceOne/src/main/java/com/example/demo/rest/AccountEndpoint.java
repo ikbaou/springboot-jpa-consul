@@ -39,7 +39,8 @@ public class AccountEndpoint {
 	 * @param response
 	 * @return
 	 */
-	protected Account getAccount(Long id, final HttpServletResponse response) {
+	@Path("/private")
+	public Account getAccount(Long id, final HttpServletResponse response) {
     	Account account = accountService.getAccount(id);
         if(account == null) {
         	Response.status(Response.Status.NOT_FOUND);
