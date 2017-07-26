@@ -1,4 +1,4 @@
-package com.example.demo.rest;
+package com.example.demo.rest.base;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -31,15 +31,14 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Api(value = "Account endpoints", produces = "application/json")
-@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path("base/accounts/")
+@Path("accounts/")
 public class AccountEndpoint extends Account{
 	
 	private static final long serialVersionUID = 1L;
 	
 	@Inject
-	AccountService accountService;
+	protected AccountService accountService;
 	
 	/**
 	 * Search for an account by ID and set the response accordingly
@@ -146,6 +145,7 @@ public class AccountEndpoint extends Account{
     }   
     	
 	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Resource to create an Account")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Account created", response = Account.class),
@@ -162,6 +162,7 @@ public class AccountEndpoint extends Account{
 	}
 	
 	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Resource to update an Account")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Account modified", response = Account.class),

@@ -1,6 +1,5 @@
 package com.example.demo.rest.flavour;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.groups.ConvertGroup;
@@ -21,7 +20,7 @@ import com.example.demo.domain.PublicAccount;
 import com.example.demo.domain.validation.groups.CreateAccountGroup;
 import com.example.demo.domain.validation.groups.ModifyAccountGroup;
 import com.example.demo.domain.views.Views;
-import com.example.demo.service.AccountService;
+import com.example.demo.rest.base.AccountEndpoint;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.swagger.annotations.Api;
@@ -31,31 +30,12 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @Api(value = "Account endpoints", produces = "application/json")
-@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path("flavour/accounts")
-public class FlavourAccountEndpoint {
+@Path("accounts")
+public class FlavourAccountEndpoint extends AccountEndpoint{
 	
-	@Inject
-	AccountService accountService;
-	
-	/**
-	 * Search for an account by ID and set the response accordingly
-	 * 
-	 * @param id
-	 * @param response
-	 * @return
-	 */
-	protected Account getAccount(Long id, final HttpServletResponse response) {
-    	Account account = accountService.getAccount(id);
-        if(account == null) {
-        	Response.status(Response.Status.NOT_FOUND);
-        }else{
-        	Response.status(Response.Status.OK);
-        }
-    	return account;		
-	}
-	
+	private static final long serialVersionUID = 1L;
+		
     /**
      * Get a Public Account based on ID
      * 
@@ -74,8 +54,8 @@ public class FlavourAccountEndpoint {
 			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
 			@Context final HttpServletResponse response) {
     	
-    	final Account account = this.getAccount(id,response);
-    	return account!=null ? new PublicAccount(account) : null;
+    	System.out.println("FLAVOUR !!!");
+    	return super.getAccountPublic(id,response);
     }
     
     /**
@@ -96,7 +76,7 @@ public class FlavourAccountEndpoint {
 			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
 			@Context final HttpServletResponse response) {
 
-    	return this.getAccount(id,response);
+    	return super.getAccountSensitive(id,response);
     }    
             
     /**
@@ -118,7 +98,7 @@ public class FlavourAccountEndpoint {
 			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
 			@Context final HttpServletResponse response) {
 
-    	return this.getAccount(id,response);
+    	return super.getAccountJacksonPublic(id,response);
     }    
     
     /**
@@ -140,10 +120,11 @@ public class FlavourAccountEndpoint {
 			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
 			@Context final HttpServletResponse response) {
 
-    	return this.getAccount(id,response);
+    	return super.getAccountJacksonSensitive(id,response);
     }   
     	
 	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Resource to create an Account")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Account created", response = Account.class),
@@ -154,12 +135,11 @@ public class FlavourAccountEndpoint {
 					to = CreateAccountGroup.class) Account account,
 			@Context final HttpServletResponse response) {
 
-		account = accountService.createAccount(account);
-		
-		return Response.status(Response.Status.CREATED).entity(account).build();
+		return super.postAccount(account,response);
 	}
 	
 	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Resource to update an Account")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 201, message = "Account modified", response = Account.class),
@@ -169,10 +149,8 @@ public class FlavourAccountEndpoint {
 					from = Default.class, 
 					to = ModifyAccountGroup.class) Account account,
 			@Context final HttpServletResponse response) {
-
-		account = accountService.modifyAccount(account);
-		
-		return Response.status(Response.Status.CREATED).entity(account).build();
+	
+		return super.putAccount(account,response);
 	}	    
 	
 

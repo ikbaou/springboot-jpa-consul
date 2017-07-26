@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Default
 @Named
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "base/account")
+@XmlRootElement(name = "account")
 public class Account extends AbstractDomain {
 	
 	private static final long serialVersionUID = 1L;
