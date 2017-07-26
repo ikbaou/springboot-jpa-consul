@@ -1,0 +1,19 @@
+package com.example.demo.util;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Named
+@Singleton
+public class SimpleBeanResolver implements BeanResolver {
+
+	public <T> T getBean(Class<T> beanClass) {
+		try {
+			return beanClass.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+}

@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -15,12 +16,15 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @author ibaou
  *
  */
-@Component
-@PropertySource("classpath:swagger.properties")
+
 @Configuration
+@Component
+@PropertySource("classpath:application.properties")
 @EnableSwagger2
-public class SwagConfig {                                    
-    @Bean
+@ConditionalOnProperty(prefix = "springfox.documentation.swagger", name = "enabled", matchIfMissing = false)
+public class SwagConfig {              
+	
+    @Bean   
     public Docket api() {             
         return new Docket(DocumentationType.SWAGGER_2);                                       
     }

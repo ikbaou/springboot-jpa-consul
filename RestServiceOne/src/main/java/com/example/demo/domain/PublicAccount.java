@@ -8,7 +8,9 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "account-limited")
 public class PublicAccount extends Account{
-	
+
+	private static final long serialVersionUID = 1L;
+
 	public PublicAccount(Account acc) {
 		this.setCustomer(acc.getCustomer());
 		this.setExpiryDate(acc.getExpiryDate());

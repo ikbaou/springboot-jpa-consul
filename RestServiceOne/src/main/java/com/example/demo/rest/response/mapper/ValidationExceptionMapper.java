@@ -90,7 +90,8 @@ public class ValidationExceptionMapper implements ExceptionMapper<ValidationExce
         }
     }
 
-    private MediaType getAcceptMediaType(List<MediaType> accept) {
+    @SuppressWarnings("unused")
+	private MediaType getAcceptMediaType(List<MediaType> accept) {
         Iterator<MediaType> it = accept.iterator();
         while (it.hasNext()) {
             MediaType mt = it.next();

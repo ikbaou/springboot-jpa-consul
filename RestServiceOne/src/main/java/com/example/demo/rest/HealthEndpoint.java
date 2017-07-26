@@ -8,7 +8,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.example.demo.domain.EventMessage;
 import com.example.demo.jms.Sender;
 
 import io.swagger.annotations.Api;
@@ -27,11 +26,6 @@ public class HealthEndpoint {
 	@GET
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Service is up and running")})
 	public String health() {
-		sender.send("DurableTestTopic", true, new EventMessage("Everybody Respond!"));
-		sender.send("VirtualTopic.TestTopic", true, new EventMessage("Only One Respond!"));
-		
-		
-		
 		return "{\"status\": \"OK\"}"; 
 	}
 

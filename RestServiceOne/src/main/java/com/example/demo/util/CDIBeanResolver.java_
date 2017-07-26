@@ -1,0 +1,15 @@
+package com.example.demo.util;
+
+import javax.enterprise.inject.spi.CDI;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+@Named
+@Singleton
+public class CDIBeanResolver implements BeanResolver {
+
+	public <T> T getBean(Class<T> beanClass) {
+		return CDI.current().select(beanClass).get();
+	}
+
+}

@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import com.example.demo.domain.validation.groups.ModifyAccountGroup;
 import com.example.demo.domain.validation.groups.ModifyCustomerGroup;
+import com.example.demo.util.AbstractDomain;
 
 /**
  * this class serves as a Domain of the Customer Entity
@@ -14,7 +15,9 @@ import com.example.demo.domain.validation.groups.ModifyCustomerGroup;
  * @author ibaou
  *
  */
-public class Customer {
+public class Customer extends AbstractDomain {
+
+	private static final long serialVersionUID = -1147916975215569144L;
 
 	@NotNull
 	@Size(min = 2, max = 255)

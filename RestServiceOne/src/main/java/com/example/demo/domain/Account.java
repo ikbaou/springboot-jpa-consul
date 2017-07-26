@@ -2,6 +2,8 @@ package com.example.demo.domain;
 
 import java.util.Date;
 
+import javax.enterprise.inject.Default;
+import javax.inject.Named;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -14,8 +16,10 @@ import com.example.demo.domain.views.Views;
 import com.example.demo.util.AbstractDomain;
 import com.fasterxml.jackson.annotation.JsonView;
 
+@Default
+@Named
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "account")
+@XmlRootElement(name = "base/account")
 public class Account extends AbstractDomain {
 	
 	private static final long serialVersionUID = 1L;

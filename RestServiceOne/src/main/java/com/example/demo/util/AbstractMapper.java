@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
 /**
  * @param <D>
@@ -16,7 +16,10 @@ import javax.enterprise.inject.spi.CDI;
  *
  * @author Michael Markogiannakis
  */
-public abstract class AbstractMapper<D extends AbstractDomain, E extends AbstractEntity> {
+public abstract class AbstractMapper<D, E> {
+	
+	@Inject
+	BeanResolver beanResolver;
 	
 	/**
 	 * The index of this class arguments that indicates the parameterized type
@@ -80,8 +83,8 @@ public abstract class AbstractMapper<D extends AbstractDomain, E extends Abstrac
 	protected D newDomainInstance() {
 		D instance = null;
 		try {
-			//important for domain objects to get the specialized implementation from CDI
-			instance = CDI.current().select( this.getDomainType() ).get();
+			//important for domain objects to get the specialized implementation from CDI / Spring / Simple Refrlection etc (see beans.xml)
+			instance = beanResolver.getBean(this.getDomainType());
 		} catch (Exception e) {
 			//LOG.error("newDomainInstance", e);
 		}

@@ -1,4 +1,4 @@
-package com.example.demo.rest;
+package com.example.demo.rest.flavour;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -33,10 +33,8 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "Account endpoints", produces = "application/json")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path("base/accounts/")
-public class AccountEndpoint extends Account{
-	
-	private static final long serialVersionUID = 1L;
+@Path("flavour/accounts")
+public class FlavourAccountEndpoint {
 	
 	@Inject
 	AccountService accountService;

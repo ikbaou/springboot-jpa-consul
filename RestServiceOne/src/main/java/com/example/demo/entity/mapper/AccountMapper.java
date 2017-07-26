@@ -1,10 +1,15 @@
 package com.example.demo.entity.mapper;
 
+import javax.enterprise.inject.Default;
+import javax.inject.Named;
+
 import com.example.demo.domain.Account;
 import com.example.demo.entity.AccountEntity;
 import com.example.demo.util.AbstractMapper;
 import com.example.demo.util.ClassUtils;
 
+@Default
+@Named
 public class AccountMapper extends AbstractMapper<Account, AccountEntity> {
 
 	@Override

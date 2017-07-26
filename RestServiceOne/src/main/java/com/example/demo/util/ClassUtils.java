@@ -24,7 +24,7 @@ public class ClassUtils {
 		}else{		
 			if( clazz.getGenericSuperclass() instanceof ParameterizedType ){			
 				final Type type = ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[index];
-				if( type instanceof Class ){
+				if( type instanceof ParameterizedType ){
 					return (Class<T>) ((ParameterizedType)type).getActualTypeArguments()[index];
 				}else if( type instanceof TypeVariable ){
 					return (Class<T>)((TypeVariable<?>)type).getBounds()[0];

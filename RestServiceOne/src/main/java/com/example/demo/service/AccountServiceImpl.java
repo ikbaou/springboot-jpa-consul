@@ -2,15 +2,12 @@ package com.example.demo.service;
 
 import javax.inject.Inject;
 
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.domain.Account;
-import com.example.demo.domain.Customer;
-import com.example.demo.entity.AccountEntity;
 import com.example.demo.entity.mapper.AccountMapper;
 import com.example.demo.repository.AccountRepository;
 
@@ -24,51 +21,39 @@ public class AccountServiceImpl implements AccountService {
 	
 	protected AccountRepository accountRepo;
 
-	protected ModelMapper modelMapper;
-	
 	@Inject
 	protected AccountMapper accountMapper;
 	
 	@Inject
 	public AccountServiceImpl(
 			AccountMapper accountMapper,
-			ModelMapper modelMapper, 
 			AccountRepository accountRepo,
 			CustomerService customerService){
 		super();
 		this.accountMapper = accountMapper;
-		this.modelMapper = modelMapper;
 		this.accountRepo = accountRepo;
 		this.customerService = customerService;
 	}
 
 	@Override
 	public Account getAccount(Long id) {
-			AccountEntity accountE = accountRepo.findOne(id);
-			Account accountDto = accountE == null ? null : modelMapper.map(accountE, Account.class);
-			LOG.debug("accountDto: {}", accountDto);
-		return accountDto;
+		return accountMapper.toDomain(accountRepo.findOne(id));
 	}
 	
 	@Override
 	public Account createAccount(Account accountDto){
-		Customer customer = customerService.createCustomer(accountDto.getCustomer());
-		accountDto.setCustomer(customer);
-		
-		AccountEntity accountE = modelMapper.map(accountDto, AccountEntity.class);
-		accountE = accountRepo.saveAndFlush(accountE);
-		accountDto = accountE == null ? null : modelMapper.map(accountE, Account.class);
+		//create customer
+		accountDto.setCustomer(customerService.createCustomer(accountDto.getCustomer()));
+		//create account
+		accountDto = accountMapper.toDomain(accountRepo.saveAndFlush(accountMapper.toEntity(accountDto)));
 		LOG.debug("accountDto: {}", accountDto);
 		return accountDto;
 	}
 
 	
 	@Override
-	public Account modifyAccount(Account accountDto){
-		
-		AccountEntity accountE = modelMapper.map(accountDto, AccountEntity.class);
-		accountE = accountRepo.saveAndFlush(accountE);
-		accountDto = accountE == null ? null : modelMapper.map(accountE, Account.class);
+	public Account modifyAccount(Account accountDto){		
+		accountDto = accountMapper.toDomain(accountRepo.saveAndFlush(accountMapper.toEntity(accountDto)));
 		LOG.debug("accountDto: {}", accountDto);
 		return accountDto;
 	}	

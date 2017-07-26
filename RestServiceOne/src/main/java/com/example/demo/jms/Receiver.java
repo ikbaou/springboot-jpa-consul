@@ -2,12 +2,14 @@ package com.example.demo.jms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.domain.EventMessage;
 
 @Component
+@ConditionalOnProperty(prefix = "jms.enabled", name = "enabled", matchIfMissing = false)
 public class Receiver {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Receiver.class);

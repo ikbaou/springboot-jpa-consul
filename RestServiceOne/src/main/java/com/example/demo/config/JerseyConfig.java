@@ -14,18 +14,23 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 @Configuration
 public class JerseyConfig extends ResourceConfig {
 	
-    @Value("${spring.jersey.application-path:/api}")
+    @Value("${spring.jersey.application-path}")
     private String apiPath;	
+    
+    @Value("${springfox.documentation.swagger.enabled}")
+    private Boolean swaggerEnabled;	    
 
     public JerseyConfig() {
     	register(WadlResource.class); //generates WADL service descriptor
         packages("com.example.demo.rest");        
     }
     
-    @PostConstruct
-    public void init(){
-    	 configureSwagger();
-    }
+	@PostConstruct
+	public void init() {
+		if (swaggerEnabled) {
+			configureSwagger();
+		}
+	}
 
     private void configureSwagger() {
         // Available at localhost:port/swagger.json
