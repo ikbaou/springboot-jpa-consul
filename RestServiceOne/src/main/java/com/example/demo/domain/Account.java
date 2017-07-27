@@ -24,7 +24,7 @@ public class Account extends AbstractDomain {
 	
 	private static final long serialVersionUID = 1L;
 
-	@NotNull(groups={ModifyAccountGroup.class})	
+	@NotNull(groups={ModifyAccountGroup.class})
 	@JsonView(Views.Sensitive.class)
 	protected Long id;
 	

@@ -1,5 +1,7 @@
 package com.example.demo.domain;
 
+import javax.enterprise.inject.Default;
+import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -15,6 +17,8 @@ import com.example.demo.util.AbstractDomain;
  * @author ibaou
  *
  */
+@Default
+@Named
 public class Customer extends AbstractDomain {
 
 	private static final long serialVersionUID = -1147916975215569144L;

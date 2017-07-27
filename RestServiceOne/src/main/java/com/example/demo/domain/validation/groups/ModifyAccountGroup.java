@@ -1,5 +1,5 @@
 package com.example.demo.domain.validation.groups;
 
-public interface ModifyAccountGroup extends CreateAccountGroup{
+public interface ModifyAccountGroup {
 
 }

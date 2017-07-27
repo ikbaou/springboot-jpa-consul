@@ -1,5 +1,6 @@
 package com.example.demo.rest.flavour;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.groups.ConvertGroup;
@@ -29,13 +30,24 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+/**
+ * DO NOT EXTEND AN EXISTING ENDPOINT BECAUSE YOU CANNOT DEVIATE 
+ * FROM THE EXISTING ANNOTATIONS AND METHOD SIGNATURES
+ * 
+ * JUST INJECT THE PARENT TO RE-USE THE EXISTING IMPLEMENTATION AND IMPLEMENT ALL ENDPOINTS
+ * 
+ * 
+ * @author ibaou
+ *
+ */
 @Api(value = "Account endpoints", produces = "application/json")
 @Produces(MediaType.APPLICATION_JSON)
 @Path("accounts")
-public class FlavourAccountEndpoint extends AccountEndpoint{
+public class FlavourAccountEndpoint{
 	
-	private static final long serialVersionUID = 1L;
-		
+
+	@Inject AccountEndpoint parent;
+	
     /**
      * Get a Public Account based on ID
      * 
@@ -55,7 +67,7 @@ public class FlavourAccountEndpoint extends AccountEndpoint{
 			@Context final HttpServletResponse response) {
     	
     	System.out.println("FLAVOUR !!!");
-    	return super.getAccountPublic(id,response);
+    	return parent.getAccountPublic(id,response);
     }
     
     /**
@@ -76,7 +88,7 @@ public class FlavourAccountEndpoint extends AccountEndpoint{
 			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
 			@Context final HttpServletResponse response) {
 
-    	return super.getAccountSensitive(id,response);
+    	return parent.getAccountSensitive(id,response);
     }    
             
     /**
@@ -98,7 +110,7 @@ public class FlavourAccountEndpoint extends AccountEndpoint{
 			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
 			@Context final HttpServletResponse response) {
 
-    	return super.getAccountJacksonPublic(id,response);
+    	return parent.getAccountJacksonPublic(id,response);
     }    
     
     /**
@@ -120,7 +132,7 @@ public class FlavourAccountEndpoint extends AccountEndpoint{
 			@ApiParam(value = "the account id", required = true) @PathParam("id") Long id,
 			@Context final HttpServletResponse response) {
 
-    	return super.getAccountJacksonSensitive(id,response);
+    	return parent.getAccountJacksonSensitive(id,response);
     }   
     	
 	@POST
@@ -134,8 +146,7 @@ public class FlavourAccountEndpoint extends AccountEndpoint{
 					from = Default.class,
 					to = CreateAccountGroup.class) Account account,
 			@Context final HttpServletResponse response) {
-
-		return super.postAccount(account,response);
+		return parent.postAccount(account,response);
 	}
 	
 	@PUT
@@ -149,8 +160,7 @@ public class FlavourAccountEndpoint extends AccountEndpoint{
 					from = Default.class, 
 					to = ModifyAccountGroup.class) Account account,
 			@Context final HttpServletResponse response) {
-	
-		return super.putAccount(account,response);
+		return parent.putAccount(account,response);
 	}	    
 	
 

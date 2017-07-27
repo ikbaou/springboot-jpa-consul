@@ -1,6 +1,7 @@
 package com.example.demo.rest.base;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.groups.ConvertGroup;
@@ -30,15 +31,18 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+@Named
 @Api(value = "Account endpoints", produces = "application/json")
 @Produces(MediaType.APPLICATION_JSON)
 @Path("accounts/")
-public class AccountEndpoint extends Account{
+public class AccountEndpoint {
 	
-	private static final long serialVersionUID = 1L;
+	protected AccountService accountService;
 	
 	@Inject
-	protected AccountService accountService;
+	public AccountEndpoint(AccountService accountService){
+		this.accountService = accountService;
+	}	
 	
 	/**
 	 * Search for an account by ID and set the response accordingly
@@ -67,7 +71,7 @@ public class AccountEndpoint extends Account{
     @GET
     @Path("/{id}")
     @Produces({ MediaType.APPLICATION_JSON })
-    @ApiOperation(value = "Resource to get an Account Public view", nickname="getAccount")    
+    @ApiOperation(value = "Resource to get an Account Public view", nickname="getAccount")
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Account found", response = PublicAccount.class),
 			@ApiResponse(code = 404, message = "Account not found") })    
